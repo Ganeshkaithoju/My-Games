@@ -1,0 +1,156 @@
+.game-board {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+}
+
+.game-header {
+  text-align: center;
+  padding: 1.5rem;
+  background-color: var(--surface);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow);
+}
+
+.game-header h2 {
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.progress {
+  font-size: clamp(0.95rem, 3vw, 1.1rem);
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.canvas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  width: 100%;
+  justify-items: center;
+}
+
+.canvas-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: fit-content;
+}
+
+@media (max-width: 1024px) {
+  .canvas-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .canvas-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .canvas-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .game-header {
+    padding: 1rem;
+  }
+}
+
+.completion-section {
+  text-align: center;
+  padding: clamp(1.5rem, 6vw, 2.5rem);
+  background: linear-gradient(135deg, #fef08a 0%, #fcd34d 100%);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-lg);
+  animation: slideInUp 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(2rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.completion-message h3 {
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  margin-bottom: 0.5rem;
+  color: #92400e;
+}
+
+.completion-message p {
+  font-size: 1.1rem;
+  color: #b45309;
+}
+
+.play-again-button {
+  background-color: #f59e0b;
+  color: white;
+  padding: 0.75rem 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 1rem;
+  transition: all 0.3s ease;
+  border-radius: 0.5rem;
+}
+
+.play-again-button:hover {
+  background-color: #d97706;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.reset-section {
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0;
+}
+
+.reset-button {
+  background-color: var(--background);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.reset-button:hover {
+  border-color: var(--secondary-color);
+  color: var(--secondary-color);
+  background-color: #fce7f3;
+}
+
+@media (max-width: 480px) {
+  .game-board {
+    gap: 1.5rem;
+  }
+
+  .completion-section {
+    padding: 1.5rem 1rem;
+  }
+
+  .play-again-button {
+    width: 100%;
+    margin-top: 1.5rem;
+  }
+
+  .reset-button {
+    width: 100%;
+  }
+}
