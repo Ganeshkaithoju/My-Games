@@ -54,3 +54,7 @@ coverage/
 # Production
 *.tgz
 dist/
+
+# Claude Code temporary files
+tmpclaude-*
+
