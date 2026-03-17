@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import ImageUpload from './components/ImageUpload'
 import GameBoard from './components/GameBoard'
+import StatsPanel from './components/StatsPanel'
+import SoundControls from './components/SoundControls'
 import '../../styles/GlobalGameStyles.css'
 import './styles/ScratchReveal.css'
 
@@ -62,6 +64,8 @@ function ScratchReveal({ onBack }) {
           />
         )}
       </div>
+      <SoundControls />
+      <StatsPanel />
     </div>
   )
 }

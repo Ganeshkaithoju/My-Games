@@ -1,5 +1,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react'
 import '../styles/ScratchCanvas.css'
+import { audioManager } from '../../../utils/audioManager'
+import ParticleEffects from './ParticleEffects'
 
 function ScratchCanvas({ imageDataUrl, imageName, onScratchComplete }) {
   const canvasRef = useRef(null)
@@ -8,17 +10,28 @@ function ScratchCanvas({ imageDataUrl, imageName, onScratchComplete }) {
   const [hasCompleted, setHasCompleted] = useState(false)
   const drawingQueueRef = useRef([])
   const animationFrameRef = useRef(null)
+  const lastConsiderableProgressRef = useRef(0) // Track last significant progress change
+  const progressCheckCounterRef = useRef(0) // Counter for progress calculation throttling
+  const lastTouchPointRef = useRef(null) // For point interpolation
+  const isMobileRef = useRef(false) // Cache mobile detection
+  const lastSoundTimeRef = useRef(0) // Track last scratch sound time
 
   // Configuration
   const BRUSH_RADIUS = 25
   const COMPLETION_THRESHOLD = 90 // 90% scratched to complete
   const CANVAS_SIZE = 250 // Fixed canvas size in pixels
   const OVERLAY_COLOR = '#333' // Dark overlay color
+  const PROGRESS_CHECK_INTERVAL = 6 // Check progress every 6 frames (~100ms at 60fps)
+  const TOUCH_THROTTLE_MS = 16 // ~60fps throttling for touch events
+  const SOUND_THROTTLE_MS = 50 // Play scratch sound every 50ms max
 
   // Initialize canvas with dark overlay only (no image drawn on canvas)
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
+
+    // Detect mobile for performance optimizations
+    isMobileRef.current = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
 
     // Set canvas size for crisp rendering on all devices
     const dpr = window.devicePixelRatio || 1
@@ -44,7 +57,7 @@ function ScratchCanvas({ imageDataUrl, imageName, onScratchComplete }) {
     }
   }, [])
 
-  // Calculate scratched area percentage by analyzing canvas alpha channel
+  // Calculate scratched area percentage - ONLY when threshold is met
   const calculateProgress = useCallback((canvas) => {
     const ctx = canvas.getContext('2d')
     try {
@@ -69,6 +82,26 @@ function ScratchCanvas({ imageDataUrl, imageName, onScratchComplete }) {
     }
   }, [])
 
+  // Interpolate between two points for smoother strokes
+  const interpolatePoints = useCallback((p1, p2) => {
+    const points = []
+    const dx = p2.x - p1.x
+    const dy = p2.y - p1.y
+    const distance = Math.sqrt(dx * dx + dy * dy)
+
+    // Generate intermediate points every few pixels for smooth strokes
+    const steps = Math.ceil(distance / 5)
+    for (let i = 0; i <= steps; i++) {
+      const t = steps > 0 ? i / steps : 0
+      points.push({
+        x: p1.x + dx * t,
+        y: p1.y + dy * t
+      })
+    }
+
+    return points
+  }, [])
+
   // Perform scratch operation at the given coordinates
   const scratch = useCallback((x, y) => {
     const canvas = canvasRef.current
@@ -85,6 +118,13 @@ function ScratchCanvas({ imageDataUrl, imageName, onScratchComplete }) {
 
     // Queue the drawing operation
     drawingQueueRef.current.push({ x: canvasX, y: canvasY })
+
+    // Play scratch sound with throttling
+    const now = Date.now()
+    if (now - lastSoundTimeRef.current > SOUND_THROTTLE_MS) {
+      audioManager.playScratchSound()
+      lastSoundTimeRef.current = now
+    }
 
     // Process drawing queue with animation frame for performance
     if (!animationFrameRef.current) {
@@ -111,6 +151,8 @@ function ScratchCanvas({ imageDataUrl, imageName, onScratchComplete }) {
         // Check if scratching is complete
         if (newProgress >= COMPLETION_THRESHOLD && !hasCompleted) {
           setHasCompleted(true)
+          // Play completion sound
+          audioManager.playCompletionSound()
           onScratchComplete()
         }
 
@@ -209,6 +251,9 @@ function ScratchCanvas({ imageDataUrl, imageName, onScratchComplete }) {
           alt={imageName}
           className="scratch-image"
         />
+
+        {/* Particle effects layer */}
+        <ParticleEffects isActive={isDrawing && !hasCompleted} />
 
         {/* Top layer: Canvas overlay that gets scratched */}
         <canvas

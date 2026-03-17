@@ -1,5 +1,6 @@
 import ScratchReveal from '../games/ScratchReveal'
 import MemoryMatch from '../games/MemoryMatch'
+import PixelChef from '../games/PixelChef'
 
 /**
  * Game Registry: Centralized configuration for all available games
@@ -23,6 +24,15 @@ export const GAMES = {
     emoji: '🎯',
     component: MemoryMatch,
     active: false
+  },
+  PIXEL_CHEF: {
+    id: 'pixel-chef',
+    title: 'Pixel Chef',
+    description: 'Catch falling ingredients and complete recipes before time runs out',
+    icon: '👨‍🍳',
+    emoji: '🍳',
+    component: PixelChef,
+    active: true
   }
   // Add more games here:
   // WORD_GAME: { ... },

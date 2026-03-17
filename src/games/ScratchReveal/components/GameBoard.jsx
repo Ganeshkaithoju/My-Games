@@ -1,14 +1,31 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import ScratchCanvas from './ScratchCanvas'
+import { statsManager } from '../../../utils/statsManager'
 import '../styles/GameBoard.css'
 
 function GameBoard({ images, onResetGame }) {
   // Track completed scratches
   const [completedCount, setCompletedCount] = useState(0)
+  const gameStartTimeRef = useRef(Date.now())
+
+  // Track game start in stats
+  useEffect(() => {
+    statsManager.recordGameStart()
+  }, [])
 
   // Handle when a canvas is fully scratched
   const handleScratchComplete = () => {
-    setCompletedCount(prev => prev + 1)
+    setCompletedCount((prev) => {
+      const newCount = prev + 1
+
+      // Check if this is the final image - record stats if so
+      if (newCount === images.length) {
+        const completionTimeMs = Date.now() - gameStartTimeRef.current
+        statsManager.recordGameCompletion(images.length, completionTimeMs)
+      }
+
+      return newCount
+    })
   }
 
   // Reset all scratches - start new game
